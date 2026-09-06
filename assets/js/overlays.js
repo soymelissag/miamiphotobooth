@@ -31,7 +31,7 @@ const OVERLAYS = [
             { src: 'overlays/stamp-tropical-park.png' },
             { src: 'overlays/stamp-burdines.png' },
             { src: 'overlays/stamp-frankies.png' },
-            { src: 'overlays/stamp-cereal-bowl.png', corner: 'top-left' }
+            { src: 'overlays/stamp-dandy-bear.png', corner: 'top-left' }
         ]
     },
     { id: 'none', label: 'No frame', src: null }

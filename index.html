@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="Miami Photobooth — four shots, one strip.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Miami Photobooth</title>
+<link rel="stylesheet" href="assets/css/booth.css">
+</head>
+<body>
+
+<div class="interface-container">
+
+    <div class="protocol-stack">
+
+        <details open>
+            <summary>
+                <span class="title">1. The Booth</span>
+                <span class="action-text"></span>
+            </summary>
+            <div class="content-wrapper">
+                <span class="arrow">&#8627;</span>
+                <p class="description">Four shots. One strip. Hold the phone steady, find your frame in the viewfinder below, and hit the shutter. The booth counts you in each time.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>
+                <span class="title">2. Choose Your Frame</span>
+                <span class="action-text"></span>
+            </summary>
+            <div class="content-wrapper">
+                <span class="arrow">&#8627;</span>
+                <div class="stack-content">
+                    <p class="description">Pick the overlay printed on your strip.</p>
+                    <div class="frame-picker" id="frame-picker" role="radiogroup" aria-label="Strip frame"></div>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>
+                <span class="title">3. How It Works</span>
+                <span class="action-text"></span>
+            </summary>
+            <div class="content-wrapper">
+                <span class="arrow">&#8627;</span>
+                <ol class="step-list">
+                    <li><span class="step-index">01</span> Allow camera access when your phone asks.</li>
+                    <li><span class="step-index">02</span> Tap the white shutter under the viewfinder.</li>
+                    <li><span class="step-index">03</span> Three, two, one &mdash; repeated four times.</li>
+                    <li><span class="step-index">04</span> Your strip develops, then save it to your phone.</li>
+                </ol>
+            </div>
+        </details>
+
+        <details id="result-section">
+            <summary>
+                <span class="title">4. Your Strip</span>
+                <span class="action-text"></span>
+            </summary>
+            <div class="content-wrapper">
+                <span class="arrow">&#8627;</span>
+                <div class="stack-content">
+                    <p class="description" id="result-empty">No strip yet. Take four shots and it lands here.</p>
+
+                    <div class="result-body" id="result-body" hidden>
+                        <img id="strip-preview" class="strip-preview" alt="Your photo strip">
+                        <div class="result-actions">
+                            <button type="button" class="btn btn-primary" id="btn-share">Save to phone</button>
+                            <button type="button" class="btn" id="btn-retake">Start over</button>
+                        </div>
+                        <p class="fine-print" id="save-hint">Press and hold the strip to save it manually.</p>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>
+                <span class="title">5. Event Info</span>
+                <span class="action-text"></span>
+            </summary>
+            <div class="content-wrapper">
+                <span class="arrow">&#8627;</span>
+                <p class="description">Strips are built on your phone and never uploaded anywhere. Nothing is stored once you close this page &mdash; save yours before you go.</p>
+            </div>
+        </details>
+
+    </div>
+
+    <div class="footer-block">
+        <span class="title">System Meta</span>
+        <div class="footer-meta">
+            <span class="arrow">&#8627;</span>
+            <div>
+                ID / MIAMI_PHOTOBOOTH_V1.0<br>
+                MODE / <span id="meta-mode">STANDBY</span><br>
+                FRAME / <span id="meta-frame">CLASSIC</span>
+            </div>
+        </div>
+
+        <div class="camera-module">
+            <video id="viewfinder" autoplay playsinline muted></video>
+
+            <div id="permission-state" class="permission-overlay">
+                <p class="permission-copy" id="permission-copy">Camera access required.</p>
+                <button type="button" class="btn btn-ghost" id="btn-enable">Enable camera</button>
+            </div>
+
+            <div id="countdown-state" class="countdown-overlay" aria-live="assertive">
+                <div class="shot-counter" id="shot-counter">SHOT 1 / 4</div>
+                <div class="countdown-numeral" id="countdown-numeral">3</div>
+            </div>
+
+            <div id="processing-state" class="processing-overlay">
+                <div class="edge-wireframe"></div>
+                <div class="scanline-edge"></div>
+                <div class="processing-data">
+                    <div id="status-text">DEVELOPING_STRIP...</div>
+                    <div id="bitrate-data">FRAMES: 4/4 // COMPOSITE: ACTIVE</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="load-progress" class="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="flash-layer" id="flash-layer"></div>
+
+            <div class="camera-ui-overlay">
+                <div class="crosshair"></div>
+                <div class="shot-pips" id="shot-pips"></div>
+                <button class="shutter-btn" id="shutter" aria-label="Take four photos"></button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<canvas id="strip-canvas" hidden></canvas>
+
+<script src="assets/js/overlays.js"></script>
+<script src="assets/js/booth.js"></script>
+</body>
+</html>

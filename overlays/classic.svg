@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="1800" viewBox="0 0 600 1800">
+  <!-- PLACEHOLDER FRAME. Replace with your own 600x1800 artwork.
+       Photo windows sit at x=30, w=540, h=405, y = 30 / 453 / 876 / 1299.
+       Everything here is drawn ON TOP of the photos. -->
+
+  <!-- Hairline around each photo window -->
+  <g fill="none" stroke="#000000" stroke-width="4">
+    <rect x="32" y="32"   width="536" height="401"/>
+    <rect x="32" y="455"  width="536" height="401"/>
+    <rect x="32" y="878"  width="536" height="401"/>
+    <rect x="32" y="1301" width="536" height="401"/>
+  </g>
+
+  <!-- Outer trim -->
+  <rect x="3" y="3" width="594" height="1794" fill="none" stroke="#000000" stroke-width="6"/>
+
+  <!-- Footer plate: y 1704 -> 1800 -->
+  <g font-family="Helvetica Neue, Helvetica, Arial, sans-serif" text-anchor="middle">
+    <text x="300" y="1752" font-size="30" font-weight="600" letter-spacing="3" fill="#000000">MIAMI PHOTOBOOTH</text>
+    <text x="300" y="1778" font-size="15" font-weight="500" letter-spacing="4" fill="#000000">FOUR SHOTS / ONE STRIP</text>
+  </g>
+</svg>

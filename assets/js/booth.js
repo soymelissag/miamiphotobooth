@@ -41,6 +41,10 @@
     // pull in an external image.
     var FOOTER = { width: 540 };
 
+    // Texture laid over the finished strip. `blend` is a canvas composite
+    // mode; `opacity` dials the whole effect back without re-exporting art.
+    var PAPER = { blend: 'multiply', opacity: 1 };
+
     // Each shot is taken on its own tap. The countdown is the pause between
     // tapping and the shutter firing, so nobody is photographed mid-tap —
     // set it to 0 for an instant capture.
@@ -227,9 +231,13 @@
         return Promise.all([
             loadImage(overlay.src),
             Promise.all(stamps.map(function (stamp) { return loadImage(stamp.src); })),
-            loadImage(overlay.footer && overlay.footer.src)
+            loadImage(overlay.footer && overlay.footer.src),
+            loadImage(overlay.paper && overlay.paper.src)
         ]).then(function (loaded) {
-            return { strip: loaded[0], stamps: loaded[1], footer: loaded[2] };
+            return {
+                strip: loaded[0], stamps: loaded[1],
+                footer: loaded[2], paper: loaded[3]
+            };
         });
     }
 
@@ -537,6 +545,22 @@
         // ...and the footer mark above that, so a frame with a filled footer
         // plate can't bury it.
         drawFooter(ctx, art.footer, selectedOverlay.footer);
+
+        // Paper goes over everything, so the whole strip reads as one printed
+        // object rather than photos sitting on a clean background.
+        drawPaper(ctx, art.paper, selectedOverlay.paper);
+    }
+
+    function drawPaper(ctx, img, def) {
+        if (!img) return;
+
+        ctx.save();
+        ctx.globalCompositeOperation = (def && def.blend) || PAPER.blend;
+        ctx.globalAlpha = (def && typeof def.opacity === 'number')
+            ? def.opacity
+            : PAPER.opacity;
+        drawCover(ctx, img, img.width, img.height, 0, 0, STRIP.w, STRIP.h, false);
+        ctx.restore();
     }
 
     function canvasToBlob(canvas) {

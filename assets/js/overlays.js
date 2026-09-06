@@ -10,6 +10,9 @@
  *   src    - path to the full-strip artwork, or null for no frame
  *   footer - optional wordmark centred in the plate below the last photo.
  *            Takes an optional `width` in strip pixels (default 540).
+ *   paper  - optional texture over the whole finished strip. `opacity` dials
+ *            it back; `blend` is any canvas blend mode. Note that a multiply
+ *            texture has to carry dark pixels to do anything at all.
  *   stamps - optional small graphics, one per photo, top to bottom. Entry 1
  *            lands on the first photo, entry 2 on the second, and so on; a
  *            photo with no entry simply gets no stamp. Each takes an optional
@@ -22,11 +25,13 @@ const OVERLAYS = [
         label: 'Classic',
         src: 'overlays/classic.svg',
         footer: { src: 'overlays/wordmark.png' },
+        // Full strength buries faces in fibre; 0.35 reads as printed stock.
+        paper: { src: 'overlays/paper-multiply.png', blend: 'multiply', opacity: 0.35 },
         stamps: [
             { src: 'overlays/stamp-tropical-park.png' },
             { src: 'overlays/stamp-burdines.png' },
             { src: 'overlays/stamp-frankies.png' },
-            { src: 'overlays/stamp-cereal-bowl.png', corner: 'top-right' }
+            { src: 'overlays/stamp-cereal-bowl.png', corner: 'top-left' }
         ]
     },
     { id: 'none', label: 'No frame', src: null }

@@ -53,6 +53,32 @@ The order in that array is the order guests see, and the first entry is the
 default. A frame that fails to load is skipped — guests still get their photos,
 just without the frame.
 
+## Paper texture
+
+`paper` lays a texture over the finished strip — photos, frame, wordmark and
+all — so the whole thing reads as one printed object.
+
+```js
+paper: { src: 'overlays/paper-multiply.png', blend: 'multiply', opacity: 0.35 }
+```
+
+**A multiply texture must contain dark pixels.** White is multiply's identity,
+so a texture painted in white at varying opacity — which is how paper overlays
+are usually sold and how the source art here was built — multiplies to exactly
+nothing. `paper-multiply.png` was generated from that source by mapping its
+alpha to darkness: bare areas became white (no change) and opaque areas became
+dark (strong darkening). Regenerate it with:
+
+```sh
+python3 tools/make-multiply-texture.py "assets/overlays/paper overlay.png" overlays/paper-multiply.png
+```
+
+The original art stays in `assets/overlays/`.
+
+`opacity` is the dial worth touching. At `1` the fibre swallows faces; `0.35`
+gives tooth without hurting the photo. Raise it for something handmade, drop it
+toward `0.15` for a whisper of grain.
+
 ## The footer mark
 
 The wordmark in the footer plate is its own layer, not part of the strip

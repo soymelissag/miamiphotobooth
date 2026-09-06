@@ -29,6 +29,5 @@ const OVERLAYS = [
             { src: 'overlays/stamp-cereal-bowl.png' }
         ]
     },
-    { id: 'miami',   label: 'Miami',   src: 'overlays/miami.svg' },
-    { id: 'none',    label: 'No frame', src: null }
+    { id: 'none', label: 'No frame', src: null }
 ];

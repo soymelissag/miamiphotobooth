@@ -29,7 +29,7 @@ const OVERLAYS = [
         paper: { src: 'overlays/paper-multiply.png', blend: 'multiply', opacity: 0.2 },
         stamps: [
             { src: 'overlays/stamp-tropical-park.png' },
-            { src: 'overlays/stamp-burdines.png' },
+            { src: 'overlays/stamp-allens.png' },
             { src: 'overlays/stamp-frankies.png' },
             { src: 'overlays/stamp-dandy-bear.png', corner: 'top-left' }
         ]

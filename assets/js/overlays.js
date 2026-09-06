@@ -25,8 +25,8 @@ const OVERLAYS = [
         label: 'Classic',
         src: 'overlays/classic.svg',
         footer: { src: 'overlays/wordmark.png' },
-        // Full strength buries faces in fibre; 0.35 reads as printed stock.
-        paper: { src: 'overlays/paper-multiply.png', blend: 'multiply', opacity: 0.35 },
+        // Full strength buries faces in fibre; this reads as printed stock.
+        paper: { src: 'overlays/paper-multiply.png', blend: 'multiply', opacity: 0.2 },
         stamps: [
             { src: 'overlays/stamp-tropical-park.png' },
             { src: 'overlays/stamp-burdines.png' },

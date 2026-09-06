@@ -75,9 +75,16 @@ python3 tools/make-multiply-texture.py "assets/overlays/paper overlay.png" overl
 
 The original art stays in `assets/overlays/`.
 
-`opacity` is the dial worth touching. At `1` the fibre swallows faces; `0.35`
-gives tooth without hurting the photo. Raise it for something handmade, drop it
-toward `0.15` for a whisper of grain.
+`opacity` is the dial worth touching. Measured against a flat mid-grey photo
+(luminance 180), on the current texture:
+
+| opacity | photo mean | darkest pixel | reads as |
+|---|---|---|---|
+| `1.0` | 149 | 43 | heavy rag, swallows faces |
+| `0.35` | 168 | 131 | pronounced tooth |
+| `0.2` | 173 | 152 | soft grain — the current setting |
+
+Lower it toward `0.1` for barely-there, raise it for something handmade.
 
 ## The footer mark
 

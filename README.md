@@ -1,4 +1,4 @@
-# Miami Photobooth
+# Westofchester’s Photo Booth
 
 A photobooth that runs on the guest's own phone. They scan a QR code, take four
 shots, and get a classic 2×6 strip with your frame on it — saved straight to

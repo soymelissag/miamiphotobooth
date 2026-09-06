@@ -1,6 +1,6 @@
 /**
- * Miami Photobooth — four shots, composited into a classic 2x6 strip
- * entirely on the guest's own phone. No uploads, no backend.
+ * Westofchester's Photo Booth — four shots, composited into a classic 2x6
+ * strip entirely on the guest's own phone. No uploads, no backend.
  */
 (function () {
     'use strict';
@@ -561,7 +561,7 @@
     function stripFilename() {
         var d = new Date();
         var pad = function (n) { return String(n).padStart(2, '0'); };
-        return 'miami-photobooth-' +
+        return 'westofchesters-photo-booth-' +
             d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' +
             pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()) + '.png';
     }
@@ -585,7 +585,7 @@
         // the download attribute is the fallback everywhere else.
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
-                await navigator.share({ files: [file], title: 'Miami Photobooth' });
+                await navigator.share({ files: [file], title: 'Westofchester’s Photo Booth' });
                 return;
             } catch (err) {
                 if (err && err.name === 'AbortError') return;

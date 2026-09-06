@@ -8,6 +8,8 @@
  *   id     - short unique key, lowercase, no spaces
  *   label  - what guests see on the button
  *   src    - path to the full-strip artwork, or null for no frame
+ *   footer - optional wordmark centred in the plate below the last photo.
+ *            Takes an optional `width` in strip pixels (default 540).
  *   stamps - optional small graphics, one per photo, top to bottom. Entry 1
  *            lands on the first photo, entry 2 on the second, and so on; a
  *            photo with no entry simply gets no stamp. Each takes an optional
@@ -19,6 +21,7 @@ const OVERLAYS = [
         id: 'classic',
         label: 'Classic',
         src: 'overlays/classic.svg',
+        footer: { src: 'overlays/wordmark.png' },
         stamps: [
             { src: 'overlays/stamp-tropical-park.png' },
             { src: 'overlays/stamp-burdines.png' },

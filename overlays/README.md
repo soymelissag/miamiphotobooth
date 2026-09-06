@@ -53,6 +53,25 @@ The order in that array is the order guests see, and the first entry is the
 default. A frame that fails to load is skipped — guests still get their photos,
 just without the frame.
 
+## The footer mark
+
+The wordmark in the footer plate is its own layer, not part of the strip
+artwork — an SVG drawn to canvas can't pull in an external image, so baking it
+into the frame would mean embedding it as base64 and re-exporting the whole
+frame every time the wordmark changes.
+
+```js
+footer: { src: 'overlays/wordmark.png', width: 540 }
+```
+
+`width` is in strip pixels and defaults to 540, matching the photo width. The
+height follows your artwork's proportions and it centres itself in the 96 px
+plate. It draws above the frame, so a frame with a filled footer plate can't
+bury it.
+
+Export it trimmed, with no transparent margin — the same reason as stamps
+below. Twice the final size is plenty (the current one is 1080 × 56).
+
 ## Stamps
 
 A frame can also carry small graphics that sit *inside* the photos, like a

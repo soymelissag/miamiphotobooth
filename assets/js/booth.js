@@ -36,6 +36,11 @@
     // four stamps from stacking in the same spot down the strip.
     var STAMP_CORNERS = ['bottom-right', 'bottom-left', 'top-right', 'top-left'];
 
+    // Artwork centred in the plate below the last photo. Kept as its own layer
+    // rather than baked into the frame, because an SVG drawn to canvas cannot
+    // pull in an external image.
+    var FOOTER = { width: 540 };
+
     // Each shot is taken on its own tap. The countdown is the pause between
     // tapping and the shutter firing, so nobody is photographed mid-tap —
     // set it to 0 for an instant capture.
@@ -216,14 +221,15 @@
         return promise;
     }
 
-    /** A frame is its full-strip artwork plus any per-photo stamps. */
+    /** A frame is its full-strip artwork, per-photo stamps, and footer mark. */
     function preloadFrame(overlay) {
         var stamps = overlay.stamps || [];
         return Promise.all([
             loadImage(overlay.src),
-            Promise.all(stamps.map(function (stamp) { return loadImage(stamp.src); }))
+            Promise.all(stamps.map(function (stamp) { return loadImage(stamp.src); })),
+            loadImage(overlay.footer && overlay.footer.src)
         ]).then(function (loaded) {
-            return { strip: loaded[0], stamps: loaded[1] };
+            return { strip: loaded[0], stamps: loaded[1], footer: loaded[2] };
         });
     }
 
@@ -488,6 +494,27 @@
         ctx.drawImage(img, x, y, w, h);
     }
 
+    /** The plate below the last photo, where the footer mark sits. */
+    function footerTop() {
+        return cellY(SHOT_COUNT - 1) + STRIP.cellH;
+    }
+
+    /** Centre the footer mark in that plate, both axes. */
+    function drawFooter(ctx, img, def) {
+        if (!img) return;
+
+        var w = (def && def.width) || FOOTER.width;
+        var h = Math.round(w * (img.height / img.width));
+        var top = footerTop();
+
+        ctx.drawImage(
+            img,
+            Math.round((STRIP.w - w) / 2),
+            Math.round(top + (STRIP.h - top - h) / 2),
+            w, h
+        );
+    }
+
     function composeStrip(art) {
         var ctx = stripCanvas.getContext('2d');
         var stampDefs = selectedOverlay.stamps || [];
@@ -501,11 +528,15 @@
             drawStamp(ctx, art.stamps[i], stampDefs[i], i, top);
         });
 
-        // The strip frame goes on last so its window rules sit above a stamp
-        // that strays too close to the edge.
+        // The strip frame goes above the photos so its window rules sit over a
+        // stamp that strays close to an edge...
         if (art.strip) {
             ctx.drawImage(art.strip, 0, 0, STRIP.w, STRIP.h);
         }
+
+        // ...and the footer mark above that, so a frame with a filled footer
+        // plate can't bury it.
+        drawFooter(ctx, art.footer, selectedOverlay.footer);
     }
 
     function canvasToBlob(canvas) {

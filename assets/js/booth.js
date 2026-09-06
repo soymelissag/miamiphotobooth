@@ -55,6 +55,19 @@
     // otherwise the photo doesn't match the pose they just struck.
     var MIRROR = true;
 
+    // Vintage black-and-white treatment, applied to the photos only. Stamps,
+    // frame and wordmark composite afterwards and keep their colour.
+    var PHOTO_LOOK = {
+        enabled: true,
+        contrast: 1.14,
+        // A print off a real machine never reaches pure black or paper white.
+        blackPoint: 24,
+        whitePoint: 242,
+        // Slightly warm rather than neutral grey, which reads digital.
+        tone: { r: 1.06, g: 1.0, b: 0.91 },
+        vignette: 0.20
+    };
+
     /* ------------------------------------------------------------------ *
      * Element handles
      * ------------------------------------------------------------------ */
@@ -342,6 +355,55 @@
         btnUndo.hidden = !(taken > 0 && taken < SHOT_COUNT);
     }
 
+    function clamp255(v) {
+        return v < 0 ? 0 : (v > 255 ? 255 : v);
+    }
+
+    /**
+     * Turn a captured frame into a vintage black-and-white print: desaturate
+     * by luminance, firm up the contrast, darken toward the corners, then
+     * compress the result into a range that stops short of pure black and
+     * paper white — the giveaway that separates a print from a digital photo.
+     */
+    function applyPhotoLook(ctx, w, h) {
+        if (!PHOTO_LOOK.enabled) return;
+
+        var look = PHOTO_LOOK;
+        var img = ctx.getImageData(0, 0, w, h);
+        var d = img.data;
+
+        var cx = w / 2;
+        var cy = h / 2;
+        var maxDist = Math.sqrt(cx * cx + cy * cy);
+        var span = (look.whitePoint - look.blackPoint) / 255;
+
+        for (var y = 0; y < h; y++) {
+            for (var x = 0; x < w; x++) {
+                var i = (y * w + x) * 4;
+
+                var lum = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
+                lum = (lum - 128) * look.contrast + 128;
+
+                if (look.vignette) {
+                    var dx = x - cx;
+                    var dy = y - cy;
+                    var t = Math.sqrt(dx * dx + dy * dy) / maxDist;
+                    lum *= 1 - look.vignette * t * t;
+                }
+
+                // Level mapping goes last so the lifted black point survives
+                // both the contrast curve and the vignette.
+                lum = look.blackPoint + clamp255(lum) * span;
+
+                d[i]     = clamp255(lum * look.tone.r);
+                d[i + 1] = clamp255(lum * look.tone.g);
+                d[i + 2] = clamp255(lum * look.tone.b);
+            }
+        }
+
+        ctx.putImageData(img, 0, 0);
+    }
+
     /** Grab the current video frame at strip-cell resolution. */
     function grabFrame() {
         var frame = document.createElement('canvas');
@@ -358,6 +420,7 @@
             0, 0, frame.width, frame.height,
             MIRROR
         );
+        applyPhotoLook(ctx, frame.width, frame.height);
 
         return frame;
     }

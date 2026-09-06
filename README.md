@@ -65,6 +65,22 @@ Things you might want to change, all near the top of `assets/js/booth.js`:
 | `SHOT_COUNT` | How many photos per strip (4) |
 | `COUNTDOWN_FROM` | Count before each shot (3); set to `0` to fire instantly |
 | `MIRROR` | Whether photos save mirrored, matching the viewfinder |
+| `PHOTO_LOOK` | The vintage black-and-white grade on the photos |
+
+`PHOTO_LOOK` only touches the photos — stamps, frame and wordmark composite
+afterwards and keep their colour. Set `enabled: false` for straight colour.
+The knobs worth turning:
+
+| | |
+|---|---|
+| `contrast` | Higher is punchier; `1` leaves the curve alone |
+| `blackPoint` / `whitePoint` | How far the print stops short of black and white. Widen to `0`/`255` for a crisp digital look |
+| `tone` | Per-channel multipliers. The default leans warm; make all three `1` for neutral grey, or raise `r` and drop `b` for stronger sepia |
+| `vignette` | Corner darkening, `0` to switch off |
+
+The viewfinder previews the grade with a CSS `filter` in `booth.css`. That's an
+approximation of the canvas grade, not the same maths — if you change the look
+substantially, nudge the filter to match or drop it so guests see plain colour.
 
 ## Notes for running an event
 

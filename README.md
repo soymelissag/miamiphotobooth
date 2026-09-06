@@ -66,6 +66,30 @@ Things you might want to change, all near the top of `assets/js/booth.js`:
 | `COUNTDOWN_FROM` | Count before each shot (3); set to `0` to fire instantly |
 | `MIRROR` | Whether photos save mirrored, matching the viewfinder |
 | `PHOTO_LOOK` | The vintage black-and-white grade on the photos |
+| `POSTER` | The 4:5 image guests actually save |
+
+## What gets saved
+
+Guests don't save the bare strip — they save a **1080 × 1350** poster, the 4:5
+shape Instagram wants for a portrait post. The strip is still built at full
+600 × 1800 and only scaled on the way in, so nothing is lost.
+
+`POSTER.strip` places it on the artwork:
+
+| | |
+|---|---|
+| `heightRatio` | Strip height as a fraction of the poster, before rotation |
+| `centreX` / `centreY` | Where the strip's centre sits, as fractions |
+| `angle` | Tilt in degrees. Negative leans the top to the left |
+
+It rotates about the strip's own centre, so changing `angle` pivots it in
+place rather than swinging it across the poster.
+
+Set `enabled: false` to go back to saving the bare 600 × 1800 strip.
+
+The background is `overlays/poster-bg.png`, sized to match. To restyle it,
+export a new 4:5 image at 1080 × 1350 and leave room for the strip — it lands
+down the middle at a slight tilt.
 
 `PHOTO_LOOK` only touches the photos — stamps, frame and wordmark composite
 afterwards and keep their colour. Set `enabled: false` for straight colour.

@@ -55,6 +55,22 @@
     // otherwise the photo doesn't match the pose they just struck.
     var MIRROR = true;
 
+    // What guests actually save: the strip laid on artwork at 4:5, the shape
+    // Instagram wants for a portrait post. The strip itself is still built at
+    // full 600x1800 and only scaled on the way in.
+    var POSTER = {
+        enabled: true,
+        width: 1080,
+        height: 1350,
+        background: 'overlays/poster-bg.png',
+        strip: {
+            heightRatio: 0.925,   // of poster height, before rotation
+            centreX: 0.505,       // fractions of poster width and height
+            centreY: 0.489,
+            angle: -4.6           // degrees; negative leans the top to the left
+        }
+    };
+
     // Vintage black-and-white treatment, applied to the photos only. Stamps,
     // frame and wordmark composite afterwards and keep their colour.
     var PHOTO_LOOK = {
@@ -108,6 +124,11 @@
     var stripCanvas = document.getElementById('strip-canvas');
     stripCanvas.width = STRIP.w;
     stripCanvas.height = STRIP.h;
+
+    // Off-document: only ever read back as a blob.
+    var posterCanvas = document.createElement('canvas');
+    posterCanvas.width = POSTER.width;
+    posterCanvas.height = POSTER.height;
 
     /* ------------------------------------------------------------------ *
      * State
@@ -600,9 +621,17 @@
         var art = await framePromise;
         composeStrip(art);
 
+        // The poster is what gets saved, so the preview shows it too — nobody
+        // should be surprised by what lands in their camera roll.
+        var output = stripCanvas;
+        if (POSTER.enabled) {
+            composePoster(await loadImage(POSTER.background));
+            output = posterCanvas;
+        }
+
         await sweep;
 
-        stripBlob = await canvasToBlob(stripCanvas);
+        stripBlob = await canvasToBlob(output);
         stripPreview.src = URL.createObjectURL(stripBlob);
 
         processingState.classList.remove('is-active');
@@ -700,6 +729,28 @@
             ? def.opacity
             : PAPER.opacity;
         drawCover(ctx, img, img.width, img.height, 0, 0, STRIP.w, STRIP.h, false);
+        ctx.restore();
+    }
+
+    /**
+     * Lay the finished strip on the poster artwork, tilted. Rotating about the
+     * strip's own centre keeps the placement stable if the angle is retuned —
+     * the strip pivots rather than swinging across the canvas.
+     */
+    function composePoster(bg) {
+        var ctx = posterCanvas.getContext('2d');
+        var cfg = POSTER.strip;
+
+        ctx.clearRect(0, 0, POSTER.width, POSTER.height);
+        if (bg) ctx.drawImage(bg, 0, 0, POSTER.width, POSTER.height);
+
+        var h = POSTER.height * cfg.heightRatio;
+        var w = h * (STRIP.w / STRIP.h);
+
+        ctx.save();
+        ctx.translate(POSTER.width * cfg.centreX, POSTER.height * cfg.centreY);
+        ctx.rotate(cfg.angle * Math.PI / 180);
+        ctx.drawImage(stripCanvas, -w / 2, -h / 2, w, h);
         ctx.restore();
     }
 
@@ -815,6 +866,7 @@
     buildFramePicker();
     buildPips();
     updatePrompt();
+    if (POSTER.enabled) loadImage(POSTER.background);
     preloadFrame(selectedOverlay);
     initCamera();
 })();

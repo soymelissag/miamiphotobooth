@@ -53,6 +53,48 @@ The order in that array is the order guests see, and the first entry is the
 default. A frame that fails to load is skipped — guests still get their photos,
 just without the frame.
 
+## Stamps
+
+A frame can also carry small graphics that sit *inside* the photos, like a
+postage stamp stuck on the print. These are separate from the full-strip
+artwork above and you can use either, both, or neither.
+
+Stamps are listed per photo, top to bottom — entry 1 lands on the first photo,
+entry 2 on the second. A photo with no entry gets no stamp:
+
+```js
+{
+    id: 'classic',
+    label: 'Classic',
+    src: 'overlays/classic.svg',
+    stamps: [
+        { src: 'overlays/stamp-hill.png' },
+        { src: 'overlays/stamp-two.png', corner: 'top-left' },
+        { src: 'overlays/stamp-three.png', height: 200 }
+    ]
+}
+```
+
+Each entry takes three optional settings:
+
+| Key | Default | Does what |
+|---|---|---|
+| `corner` | cycles | `top-left`, `top-right`, `bottom-left`, `bottom-right` |
+| `height` | 165 | Height in strip pixels; width follows the artwork's proportions |
+| `inset` | 20 | Distance from the photo's edge |
+
+Left alone, stamps cycle through the corners as they go down the strip
+(bottom-right, bottom-left, top-right, top-left) so four of them don't stack in
+the same spot.
+
+**Export them tight.** Crop right to the edge of the artwork with no
+transparent margin — padding is treated as part of the image, so a stamp with
+30% empty space around it lands 30% smaller and off-centre. Keep them a few
+hundred pixels tall; anything larger is wasted on a 165 px slot and just slows
+the page down on event wifi.
+
+Defaults for every stamp live in `STAMP` at the top of `assets/js/booth.js`.
+
 ## Changing the strip shape
 
 `STRIP` at the top of `assets/js/booth.js` drives all the numbers above. If you

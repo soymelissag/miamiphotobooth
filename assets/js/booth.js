@@ -25,6 +25,17 @@
     var SHOT_COUNT = 4;
     var DEVELOP_TICK_MS = 45;
 
+    // Per-photo stamps, sized by height so artwork of any proportion sits
+    // consistently. Both values are in strip pixels; a photo cell is 540x405.
+    var STAMP = {
+        height: 165,
+        inset: 20
+    };
+
+    // Where a stamp lands when its entry doesn't name a corner. Cycling keeps
+    // four stamps from stacking in the same spot down the strip.
+    var STAMP_CORNERS = ['bottom-right', 'bottom-left', 'top-right', 'top-left'];
+
     // Each shot is taken on its own tap. The countdown is the pause between
     // tapping and the shutter firing, so nobody is photographed mid-tap —
     // set it to 0 for an instant capture.
@@ -173,7 +184,7 @@
                     other.setAttribute('aria-checked', other === chip ? 'true' : 'false');
                 });
                 metaFrame.textContent = overlay.label.toUpperCase();
-                preloadOverlay(overlay);
+                preloadFrame(overlay);
             });
 
             framePicker.appendChild(chip);
@@ -183,26 +194,37 @@
     }
 
     /**
-     * Overlay artwork is fetched once and reused. Resolves to null when the
-     * frame is "none" or the file is missing — a missing overlay costs the
-     * guest their frame, never their photos.
+     * Artwork is fetched once and reused. Resolves to null rather than
+     * rejecting when a file is missing — bad artwork costs the guest their
+     * frame, never their photos.
      */
-    function preloadOverlay(overlay) {
-        if (!overlay.src) return Promise.resolve(null);
-        if (overlayCache[overlay.src]) return overlayCache[overlay.src];
+    function loadImage(src) {
+        if (!src) return Promise.resolve(null);
+        if (overlayCache[src]) return overlayCache[src];
 
         var promise = new Promise(function (resolve) {
             var img = new Image();
             img.onload = function () { resolve(img); };
             img.onerror = function () {
-                console.warn('Overlay failed to load: ' + overlay.src);
+                console.warn('Artwork failed to load: ' + src);
                 resolve(null);
             };
-            img.src = overlay.src;
+            img.src = src;
         });
 
-        overlayCache[overlay.src] = promise;
+        overlayCache[src] = promise;
         return promise;
+    }
+
+    /** A frame is its full-strip artwork plus any per-photo stamps. */
+    function preloadFrame(overlay) {
+        var stamps = overlay.stamps || [];
+        return Promise.all([
+            loadImage(overlay.src),
+            Promise.all(stamps.map(function (stamp) { return loadImage(stamp.src); }))
+        ]).then(function (loaded) {
+            return { strip: loaded[0], stamps: loaded[1] };
+        });
     }
 
     /* ------------------------------------------------------------------ *
@@ -374,7 +396,7 @@
         setMode('SHOOTING');
 
         // Start fetching the frame now so it is ready by the time we composite.
-        var overlayPromise = preloadOverlay(selectedOverlay);
+        var framePromise = preloadFrame(selectedOverlay);
 
         await runCountdown(shots.length);
         if (aborted) return abortShot();
@@ -384,7 +406,7 @@
         updatePrompt();
 
         if (shots.length >= SHOT_COUNT) {
-            await develop(overlayPromise);
+            await develop(framePromise);
             busy = false;
             // The strip is built; the next tap should be "Start over", not a
             // fifth photo landing nowhere.
@@ -410,7 +432,7 @@
      * Compositing
      * ------------------------------------------------------------------ */
 
-    async function develop(overlayPromise) {
+    async function develop(framePromise) {
         setMode('DEVELOPING');
         statusText.textContent = 'DEVELOPING_STRIP...';
         bitrateData.textContent = 'FRAMES: ' + SHOT_COUNT + '/' + SHOT_COUNT + ' // COMPOSITE: ACTIVE';
@@ -426,8 +448,8 @@
             }
         })();
 
-        var overlayImg = await overlayPromise;
-        composeStrip(overlayImg);
+        var art = await framePromise;
+        composeStrip(art);
 
         await sweep;
 
@@ -443,18 +465,46 @@
         setMode('COMPLETE');
     }
 
-    function composeStrip(overlayImg) {
+    /**
+     * Place one stamp inside a photo cell. Drawn unmirrored on purpose: the
+     * photo beneath was flipped at capture, and lettering on a stamp has to
+     * stay readable.
+     */
+    function drawStamp(ctx, img, def, index, cellTop) {
+        if (!img) return;
+
+        var h = (def && def.height) || STAMP.height;
+        var w = Math.round(h * (img.width / img.height));
+        var corner = (def && def.corner) || STAMP_CORNERS[index % STAMP_CORNERS.length];
+        var inset = (def && typeof def.inset === 'number') ? def.inset : STAMP.inset;
+
+        var x = corner.indexOf('left') > -1
+            ? STRIP.marginX + inset
+            : STRIP.marginX + STRIP.cellW - inset - w;
+        var y = corner.indexOf('top') > -1
+            ? cellTop + inset
+            : cellTop + STRIP.cellH - inset - h;
+
+        ctx.drawImage(img, x, y, w, h);
+    }
+
+    function composeStrip(art) {
         var ctx = stripCanvas.getContext('2d');
+        var stampDefs = selectedOverlay.stamps || [];
 
         ctx.fillStyle = STRIP.bg;
         ctx.fillRect(0, 0, STRIP.w, STRIP.h);
 
         shots.forEach(function (frame, i) {
-            ctx.drawImage(frame, STRIP.marginX, cellY(i), STRIP.cellW, STRIP.cellH);
+            var top = cellY(i);
+            ctx.drawImage(frame, STRIP.marginX, top, STRIP.cellW, STRIP.cellH);
+            drawStamp(ctx, art.stamps[i], stampDefs[i], i, top);
         });
 
-        if (overlayImg) {
-            ctx.drawImage(overlayImg, 0, 0, STRIP.w, STRIP.h);
+        // The strip frame goes on last so its window rules sit above a stamp
+        // that strays too close to the edge.
+        if (art.strip) {
+            ctx.drawImage(art.strip, 0, 0, STRIP.w, STRIP.h);
         }
     }
 
@@ -566,6 +616,6 @@
     buildFramePicker();
     buildPips();
     updatePrompt();
-    preloadOverlay(selectedOverlay);
+    preloadFrame(selectedOverlay);
     initCamera();
 })();

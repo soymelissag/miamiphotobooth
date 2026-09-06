@@ -64,14 +64,9 @@
             <div class="content-wrapper">
                 <span class="arrow">&#8627;</span>
                 <div class="stack-content">
-                    <p class="description" id="result-empty">No strip yet. Take four shots and it lands here.</p>
+                    <p class="description" id="result-empty">No strip yet. Take four shots and it lands below.</p>
 
                     <div class="result-body" id="result-body" hidden>
-                        <img id="strip-preview" class="strip-preview" alt="Your photo strip">
-                        <div class="result-actions">
-                            <button type="button" class="btn btn-primary" id="btn-share">Save to phone</button>
-                            <button type="button" class="btn" id="btn-retake">Start over</button>
-                        </div>
                         <p class="fine-print" id="save-hint">Press and hold the strip to save it manually.</p>
                         <p class="fine-print">Your strip lives only on this phone. Close this page and it&rsquo;s gone.</p>
                     </div>
@@ -118,10 +113,19 @@
 
             <div class="camera-ui-overlay">
                 <div class="crosshair"></div>
+                <img class="stamp-preview" id="stamp-preview" alt="" hidden>
                 <div class="shot-counter" id="shot-counter" aria-live="polite">TAP FOR SHOT 1 / 4</div>
                 <button type="button" class="undo-btn" id="btn-undo" hidden>Undo last</button>
                 <div class="shot-pips" id="shot-pips"></div>
                 <button class="shutter-btn" id="shutter" aria-label="Take a photo"></button>
+            </div>
+        </div>
+
+        <div class="result-stage" id="result-stage" hidden>
+            <img id="strip-preview" class="strip-stage-img" alt="Your photo strip">
+            <div class="stage-actions">
+                <button type="button" class="btn btn-primary" id="btn-share">Save to phone</button>
+                <button type="button" class="btn" id="btn-retake">Start over</button>
             </div>
         </div>
     </div>

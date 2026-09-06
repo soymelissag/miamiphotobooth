@@ -178,15 +178,29 @@ details:nth-of-type(1) .description { font-size: 22px; line-height: 1.1; }
 /* An author `display` beats the UA's [hidden] rule, so restate it. */
 .result-body[hidden] { display: none; }
 
-.strip-preview {
-    width: 132px;
-    height: auto;
+/* --- Result stage: takes the camera's place once the strip exists --- */
+
+.result-stage {
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.result-stage[hidden] { display: none; }
+
+.strip-stage-img {
+    max-height: 60vh;
+    width: auto;
+    max-width: 100%;
     display: block;
     border: var(--border-style);
     background: var(--color-grey);
 }
 
-.result-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.stage-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 
 .btn {
     font-family: inherit;
@@ -230,6 +244,8 @@ details:nth-of-type(1) .description { font-size: 22px; line-height: 1.1; }
 }
 
 /* --- Camera module --- */
+
+.camera-module[hidden] { display: none; }
 
 .camera-module {
     margin-top: auto;
@@ -405,10 +421,25 @@ details:nth-of-type(1) .description { font-size: 22px; line-height: 1.1; }
     border: 1px solid rgba(255,255,255,0.2);
 }
 
+/* Shows the stamp this shot will land, in the corner it will occupy. Sized
+   and placed from JS as percentages, so it tracks the strip geometry. */
+.stamp-preview {
+    position: absolute;
+    display: block;
+    /* Slightly transparent so it reads as a preview rather than something
+       already stuck to the lens. */
+    opacity: 0.85;
+}
+
+.stamp-preview[hidden] { display: none; }
+
+/* Centred above the shutter, because the stamp preview cycles through all
+   four corners and would sit on top of these anywhere else. */
 .shot-pips {
     position: absolute;
-    bottom: 22px;
-    right: 15px;
+    bottom: 58px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     gap: 5px;
 }

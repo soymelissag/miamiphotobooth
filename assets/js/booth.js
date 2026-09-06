@@ -75,6 +75,9 @@
     var video = document.getElementById('viewfinder');
     var shutter = document.getElementById('shutter');
     var btnUndo = document.getElementById('btn-undo');
+    var cameraModule = document.querySelector('.camera-module');
+    var resultStage = document.getElementById('result-stage');
+    var stampPreview = document.getElementById('stamp-preview');
 
     var permissionState = document.getElementById('permission-state');
     var permissionCopy = document.getElementById('permission-copy');
@@ -207,6 +210,7 @@
                 });
                 metaFrame.textContent = overlay.label.toUpperCase();
                 preloadFrame(overlay);
+                updateStampPreview();
             });
 
             framePicker.appendChild(chip);
@@ -353,6 +357,56 @@
         }
 
         btnUndo.hidden = !(taken > 0 && taken < SHOT_COUNT);
+        updateStampPreview();
+    }
+
+    /**
+     * Show the stamp this shot will receive, in the corner it will land in.
+     * The viewfinder is cover-cropped to the same 4:3 as a photo cell, so the
+     * strip geometry maps straight onto it as percentages.
+     *
+     * Height is set and width left to the image, so the browser keeps the
+     * artwork's proportions without us needing its dimensions; offsets are
+     * anchored from the same edges drawStamp measures from.
+     */
+    function updateStampPreview() {
+        var defs = selectedOverlay.stamps || [];
+        var index = shots.length;
+        var def = defs[index];
+
+        if (!def || !def.src || index >= SHOT_COUNT) {
+            stampPreview.hidden = true;
+            return;
+        }
+
+        var h = def.height || STAMP.height;
+        var inset = typeof def.inset === 'number' ? def.inset : STAMP.inset;
+        var corner = def.corner || STAMP_CORNERS[index % STAMP_CORNERS.length];
+
+        var s = stampPreview.style;
+        s.height = (h / STRIP.cellH * 100) + '%';
+        s.top = s.bottom = s.left = s.right = '';
+
+        var insetX = (inset / STRIP.cellW * 100) + '%';
+        var insetY = (inset / STRIP.cellH * 100) + '%';
+
+        if (corner.indexOf('left') > -1) s.left = insetX; else s.right = insetX;
+        if (corner.indexOf('top') > -1) s.top = insetY; else s.bottom = insetY;
+
+        if (stampPreview.getAttribute('src') !== def.src) {
+            stampPreview.setAttribute('src', def.src);
+        }
+        stampPreview.hidden = false;
+    }
+
+    /** Give the strip the whole stage once it exists. */
+    function showStage(showResult) {
+        cameraModule.hidden = showResult;
+        resultStage.hidden = !showResult;
+    }
+
+    function collapseAllSections() {
+        detailsElements.forEach(function (d) { d.removeAttribute('open'); });
     }
 
     function clamp255(v) {
@@ -538,7 +592,12 @@
 
         resultEmpty.hidden = true;
         resultBody.hidden = false;
-        openSection(resultSection);
+
+        // The camera has done its job. Hand the stage to the strip, and fold
+        // the accordion away so it gets the height.
+        stampPreview.hidden = true;
+        showStage(true);
+        collapseAllSections();
         setMode('COMPLETE');
     }
 
@@ -687,11 +746,15 @@
         shots = [];
         stripBlob = null;
         updatePips(0);
-        updatePrompt();
         resultBody.hidden = true;
         resultEmpty.hidden = false;
         if (stripPreview.src) URL.revokeObjectURL(stripPreview.src);
         stripPreview.removeAttribute('src');
+
+        // Camera back on stage, and the stamp preview back to the first shot.
+        showStage(false);
+        updatePrompt();
+
         shutter.disabled = !stream;
         setMode(stream ? 'READY' : 'STANDBY');
     }

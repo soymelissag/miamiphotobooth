@@ -361,11 +361,15 @@ details:nth-of-type(1) .description { font-size: 22px; line-height: 1.1; }
 }
 
 /* Sits over live video, which can be any colour — a bright room washes out
-   plain white text, so the prompt carries its own plate. */
+   plain white text, so the prompt carries its own plate. Centred rather than
+   cornered: the stamp preview claims a different corner on every shot, and
+   this is too wide to fit between two of them on a narrow phone. */
 .shot-counter {
     position: absolute;
-    top: 15px;
-    left: 15px;
+    bottom: 124px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
     color: #FFFFFF;
     font-family: monospace;
     font-size: 9px;
@@ -471,10 +475,13 @@ details:nth-of-type(1) .description { font-size: 22px; line-height: 1.1; }
 
 .shutter-btn[disabled] { opacity: 0.35; cursor: default; }
 
+/* Stacked up the centre with the shutter and pips. The stamp preview takes a
+   different corner on every shot, so the corners are no longer usable. */
 .undo-btn {
     position: absolute;
-    bottom: 18px;
-    left: 15px;
+    bottom: 88px;
+    left: 50%;
+    transform: translateX(-50%);
     font-family: monospace;
     font-size: 9px;
     text-transform: uppercase;

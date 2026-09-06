@@ -129,8 +129,22 @@
         return new Promise(function (resolve) { setTimeout(resolve, ms); });
     }
 
-    function setMode(label) {
-        metaMode.textContent = label;
+    /**
+     * Plain-English status for the footer. The keys stay terse so the calls
+     * read as states; only the guest-facing wording lives here.
+     */
+    var MODE_TEXT = {
+        STANDBY: 'Camera is off',
+        CONNECTING: 'Getting the camera ready',
+        READY: 'Ready — tap the shutter',
+        BLOCKED: 'Camera not allowed',
+        SHOOTING: 'Taking your photo',
+        DEVELOPING: 'Developing your strip',
+        COMPLETE: 'Your strip is ready'
+    };
+
+    function setMode(key) {
+        metaMode.textContent = MODE_TEXT[key] || key;
     }
 
     function cellY(index) {
@@ -208,7 +222,7 @@
                 framePicker.querySelectorAll('.frame-chip').forEach(function (other) {
                     other.setAttribute('aria-checked', other === chip ? 'true' : 'false');
                 });
-                metaFrame.textContent = overlay.label.toUpperCase();
+                metaFrame.textContent = overlay.label;
                 preloadFrame(overlay);
                 updateStampPreview();
             });
@@ -216,7 +230,7 @@
             framePicker.appendChild(chip);
         });
 
-        metaFrame.textContent = selectedOverlay.label.toUpperCase();
+        metaFrame.textContent = selectedOverlay.label;
     }
 
     /**
@@ -350,11 +364,11 @@
     function updatePrompt() {
         var taken = shots.length;
 
-        if (taken >= SHOT_COUNT) {
-            shotCounter.textContent = 'STRIP COMPLETE';
-        } else {
-            shotCounter.textContent = 'TAP FOR SHOT ' + (taken + 1) + ' / ' + SHOT_COUNT;
-        }
+        // Deliberately short. This sits between two corner stamps on a narrow
+        // phone, and "tap the shutter" now lives in the status line instead.
+        shotCounter.textContent = taken >= SHOT_COUNT
+            ? 'COMPLETE'
+            : 'SHOT ' + (taken + 1) + ' / ' + SHOT_COUNT;
 
         btnUndo.hidden = !(taken > 0 && taken < SHOT_COUNT);
         updateStampPreview();
@@ -483,6 +497,9 @@
         shotCounter.textContent = 'SHOT ' + (shotIndex + 1) + ' / ' + SHOT_COUNT;
         if (COUNTDOWN_FROM < 1) return;
 
+        // Both sit dead centre, and the numeral says everything a counting
+        // guest needs, so the label steps aside for it.
+        shotCounter.hidden = true;
         countdownState.classList.add('is-active');
 
         for (var n = COUNTDOWN_FROM; n > 0; n--) {
@@ -492,6 +509,7 @@
         }
 
         countdownState.classList.remove('is-active');
+        shotCounter.hidden = false;
     }
 
     /**

@@ -71,5 +71,5 @@ Things you might want to change, all near the top of `assets/js/booth.js`:
 - **Test on the actual phones first.** iOS and Android both prompt for camera
   permission; a guest who taps "Don't Allow" has to fix it in browser settings.
 - **Strips are not saved anywhere.** If a guest closes the tab before saving,
-  their strip is gone. The copy in section 5 says so.
+  their strip is gone. The fine print under the save button says so.
 - Works offline once loaded, so patchy event wifi only affects the first load.

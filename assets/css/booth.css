@@ -44,9 +44,11 @@ body {
     position: relative;
 }
 
-/* The accordion column scrolls; the camera block stays pinned to the bottom. */
+/* The accordion takes its content height and scrolls when it outgrows the
+   screen; the pink block absorbs whatever is left so there is never a bare
+   strip of page showing between the two. */
 .protocol-stack {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -62,14 +64,13 @@ details:nth-of-type(1) { background-color: var(--color-grey); }
 details:nth-of-type(2) { background-color: var(--color-yellow); }
 details:nth-of-type(3) { background-color: var(--color-peach); }
 details:nth-of-type(4) { background-color: var(--color-red); }
-details:nth-of-type(5) { background-color: var(--color-purple); }
 
 .footer-block {
     background-color: var(--color-pink);
     padding: var(--spacing-y) var(--spacing-x);
     border-bottom: var(--border-style);
     border-top: var(--border-style);
-    flex: 0 0 auto;
+    flex: 1 0 auto;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -223,6 +224,7 @@ details:nth-of-type(1) .description { font-size: 22px; line-height: 1.1; }
     text-transform: uppercase;
     letter-spacing: 0.02em;
     margin-top: 10px;
+    margin-bottom: 14px;
     display: flex;
     gap: 8px;
 }
@@ -230,7 +232,7 @@ details:nth-of-type(1) .description { font-size: 22px; line-height: 1.1; }
 /* --- Camera module --- */
 
 .camera-module {
-    margin-top: 14px;
+    margin-top: auto;
     width: 100%;
     border: var(--border-style);
     background: #000;

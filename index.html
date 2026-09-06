@@ -22,7 +22,7 @@
             </summary>
             <div class="content-wrapper">
                 <span class="arrow">&#8627;</span>
-                <p class="description">Four shots. One strip. Hold the phone steady, find your frame in the viewfinder below, and hit the shutter. The booth counts you in each time.</p>
+                <p class="description">Four shots. One strip. You decide when each one happens &mdash; tap the shutter, get a three count, and take the next whenever you&rsquo;re ready.</p>
             </div>
         </details>
 
@@ -49,8 +49,8 @@
                 <span class="arrow">&#8627;</span>
                 <ol class="step-list">
                     <li><span class="step-index">01</span> Allow camera access when your phone asks.</li>
-                    <li><span class="step-index">02</span> Tap the white shutter under the viewfinder.</li>
-                    <li><span class="step-index">03</span> Three, two, one &mdash; repeated four times.</li>
+                    <li><span class="step-index">02</span> Tap the white shutter when you&rsquo;re ready. Three, two, one.</li>
+                    <li><span class="step-index">03</span> Do that four times &mdash; at your own pace. Undo any shot you don&rsquo;t like.</li>
                     <li><span class="step-index">04</span> Your strip develops, then save it to your phone.</li>
                 </ol>
             </div>
@@ -110,8 +110,7 @@
                 <button type="button" class="btn btn-ghost" id="btn-enable">Enable camera</button>
             </div>
 
-            <div id="countdown-state" class="countdown-overlay" aria-live="assertive">
-                <div class="shot-counter" id="shot-counter">SHOT 1 / 4</div>
+            <div id="countdown-state" class="countdown-overlay">
                 <div class="countdown-numeral" id="countdown-numeral">3</div>
             </div>
 
@@ -127,12 +126,12 @@
                 </div>
             </div>
 
-            <div class="flash-layer" id="flash-layer"></div>
-
             <div class="camera-ui-overlay">
                 <div class="crosshair"></div>
+                <div class="shot-counter" id="shot-counter" aria-live="polite">TAP FOR SHOT 1 / 4</div>
+                <button type="button" class="undo-btn" id="btn-undo" hidden>Undo last</button>
                 <div class="shot-pips" id="shot-pips"></div>
-                <button class="shutter-btn" id="shutter" aria-label="Take four photos"></button>
+                <button class="shutter-btn" id="shutter" aria-label="Take a photo"></button>
             </div>
         </div>
     </div>

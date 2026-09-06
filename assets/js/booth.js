@@ -23,10 +23,13 @@
     };
 
     var SHOT_COUNT = 4;
+    var DEVELOP_TICK_MS = 45;
+
+    // Each shot is taken on its own tap. The countdown is the pause between
+    // tapping and the shutter firing, so nobody is photographed mid-tap —
+    // set it to 0 for an instant capture.
     var COUNTDOWN_FROM = 3;
     var COUNTDOWN_TICK_MS = 800;
-    var BETWEEN_SHOTS_MS = 700;
-    var DEVELOP_TICK_MS = 45;
 
     // Guests see themselves mirrored, so the saved strip is mirrored too —
     // otherwise the photo doesn't match the pose they just struck.
@@ -38,7 +41,7 @@
 
     var video = document.getElementById('viewfinder');
     var shutter = document.getElementById('shutter');
-    var flashLayer = document.getElementById('flash-layer');
+    var btnUndo = document.getElementById('btn-undo');
 
     var permissionState = document.getElementById('permission-state');
     var permissionCopy = document.getElementById('permission-copy');
@@ -286,11 +289,21 @@
         }
     }
 
-    function fireFlash() {
-        flashLayer.classList.remove('is-firing');
-        // Force a reflow so the animation restarts on every shot.
-        void flashLayer.offsetWidth;
-        flashLayer.classList.add('is-firing');
+    /**
+     * The standing prompt in the corner of the viewfinder. This is the only
+     * capture feedback there is — no flash — so it has to carry the whole
+     * story: what just happened, and what the next tap will do.
+     */
+    function updatePrompt() {
+        var taken = shots.length;
+
+        if (taken >= SHOT_COUNT) {
+            shotCounter.textContent = 'STRIP COMPLETE';
+        } else {
+            shotCounter.textContent = 'TAP FOR SHOT ' + (taken + 1) + ' / ' + SHOT_COUNT;
+        }
+
+        btnUndo.hidden = !(taken > 0 && taken < SHOT_COUNT);
     }
 
     /** Grab the current video frame at strip-cell resolution. */
@@ -315,6 +328,8 @@
 
     async function runCountdown(shotIndex) {
         shotCounter.textContent = 'SHOT ' + (shotIndex + 1) + ' / ' + SHOT_COUNT;
+        if (COUNTDOWN_FROM < 1) return;
+
         countdownState.classList.add('is-active');
 
         for (var n = COUNTDOWN_FROM; n > 0; n--) {
@@ -326,52 +341,69 @@
         countdownState.classList.remove('is-active');
     }
 
-    /** Tear down a half-finished sequence and hand the booth back, idle. */
-    function abortSequence() {
-        shots = [];
+    /**
+     * Drop the shot that was counting down and hand the booth back, idle.
+     * Shots already banked are kept — losing them because a text message
+     * arrived would be its own small tragedy.
+     */
+    function abortShot() {
         aborted = false;
         busy = false;
         countdownState.classList.remove('is-active');
         processingState.classList.remove('is-active');
         loadProgress.style.width = '0%';
-        updatePips(0);
+        updatePips(shots.length);
+        updatePrompt();
         shutter.disabled = !stream;
         setMode(stream ? 'READY' : 'STANDBY');
     }
 
-    async function runSequence() {
+    async function takeShot() {
         if (busy) return;
         if (!stream || !video.videoWidth) {
             showPermissionGate('Camera is not ready yet. Tap to start it.');
             return;
         }
 
+        if (shots.length >= SHOT_COUNT) return;
+
         busy = true;
         aborted = false;
         shutter.disabled = true;
-        shots = [];
-        updatePips(0);
+        btnUndo.hidden = true;
         setMode('SHOOTING');
 
         // Start fetching the frame now so it is ready by the time we composite.
         var overlayPromise = preloadOverlay(selectedOverlay);
 
-        for (var i = 0; i < SHOT_COUNT; i++) {
-            await runCountdown(i);
-            if (aborted) return abortSequence();
+        await runCountdown(shots.length);
+        if (aborted) return abortShot();
 
-            fireFlash();
-            shots.push(grabFrame());
-            updatePips(shots.length);
+        shots.push(grabFrame());
+        updatePips(shots.length);
+        updatePrompt();
 
-            if (i < SHOT_COUNT - 1) await wait(BETWEEN_SHOTS_MS);
-            if (aborted) return abortSequence();
+        if (shots.length >= SHOT_COUNT) {
+            await develop(overlayPromise);
+            busy = false;
+            // The strip is built; the next tap should be "Start over", not a
+            // fifth photo landing nowhere.
+            shutter.disabled = true;
+            return;
         }
-
-        await develop(overlayPromise);
 
         busy = false;
         shutter.disabled = false;
+        setMode('READY');
+    }
+
+    /** Hand back the last shot so a blink or a bad angle isn't final. */
+    function undoShot() {
+        if (busy || !shots.length) return;
+        shots.pop();
+        updatePips(shots.length);
+        updatePrompt();
+        setMode(stream ? 'READY' : 'STANDBY');
     }
 
     /* ------------------------------------------------------------------ *
@@ -487,10 +519,12 @@
         shots = [];
         stripBlob = null;
         updatePips(0);
+        updatePrompt();
         resultBody.hidden = true;
         resultEmpty.hidden = false;
         if (stripPreview.src) URL.revokeObjectURL(stripPreview.src);
         stripPreview.removeAttribute('src');
+        shutter.disabled = !stream;
         setMode(stream ? 'READY' : 'STANDBY');
     }
 
@@ -498,7 +532,8 @@
      * Wiring
      * ------------------------------------------------------------------ */
 
-    shutter.addEventListener('click', runSequence);
+    shutter.addEventListener('click', takeShot);
+    btnUndo.addEventListener('click', undoShot);
     btnEnable.addEventListener('click', initCamera);
     btnShare.addEventListener('click', saveStrip);
     btnRetake.addEventListener('click', resetBooth);
@@ -514,9 +549,9 @@
         stream = null;
     }
 
-    // Phones reclaim the camera from backgrounded tabs, so a sequence left
-    // running would quietly capture frozen frames. Drop it and let the guest
-    // start over rather than hand them four identical stills.
+    // Phones reclaim the camera from backgrounded tabs, so a shot left
+    // counting down would capture a frozen frame. Drop that one shot; the
+    // ones already banked survive.
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             if (busy) aborted = true;
@@ -530,6 +565,7 @@
 
     buildFramePicker();
     buildPips();
+    updatePrompt();
     preloadOverlay(selectedOverlay);
     initCamera();
 })();

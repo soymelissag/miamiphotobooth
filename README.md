@@ -4,6 +4,9 @@ A photobooth that runs on the guest's own phone. They scan a QR code, take four
 shots, and get a classic 2×6 strip with your frame on it — saved straight to
 their camera roll.
 
+Each shot is a separate tap, so guests set their own pace and can undo one they
+don't like. Nothing fires on its own and there is no flash.
+
 No app to install, no backend, no accounts. Everything happens in the browser:
 the photos are composited on the phone and never leave it.
 
@@ -60,7 +63,7 @@ Things you might want to change, all near the top of `assets/js/booth.js`:
 |---|---|
 | `STRIP` | Strip dimensions and photo window geometry |
 | `SHOT_COUNT` | How many photos per strip (4) |
-| `COUNTDOWN_FROM` | Seconds counted before each shot (3) |
+| `COUNTDOWN_FROM` | Count before each shot (3); set to `0` to fire instantly |
 | `MIRROR` | Whether photos save mirrored, matching the viewfinder |
 
 ## Notes for running an event

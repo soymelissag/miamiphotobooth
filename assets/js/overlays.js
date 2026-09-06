@@ -20,8 +20,10 @@ const OVERLAYS = [
         label: 'Classic',
         src: 'overlays/classic.svg',
         stamps: [
-            { src: 'overlays/stamp-hill.png' }
-            // Three more slots free — add one per photo as the artwork lands.
+            { src: 'overlays/stamp-tropical-park.png' },
+            { src: 'overlays/stamp-burdines.png' },
+            { src: 'overlays/stamp-frankies.png' },
+            { src: 'overlays/stamp-cereal-bowl.png' }
         ]
     },
     { id: 'miami',   label: 'Miami',   src: 'overlays/miami.svg' },
